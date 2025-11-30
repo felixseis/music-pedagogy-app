@@ -12,7 +12,7 @@ export default function SightReading() {
         // Generate 4 random notes
         const newScore = Array(4).fill(null).map(() => {
             const note = NOTES[Math.floor(Math.random() * NOTES.length)];
-            return `${note}: q`;
+            return `${note}:q`;
         });
         setScore(newScore);
     };
