@@ -29,10 +29,27 @@ export default function DictationGame() {
     const [targetMelody, setTargetMelody] = useState([]);
     const [userMelody, setUserMelody] = useState([]);
     const [feedback, setFeedback] = useState(null); // 'correct' | 'incorrect'
+    const [isLoaded, setIsLoaded] = useState(false);
     const synthRef = useRef(null);
 
     useEffect(() => {
-        synthRef.current = new Tone.Synth().toDestination();
+        const sampler = new Tone.Sampler({
+            urls: {
+                "C4": "C4.mp3",
+                "D#4": "Ds4.mp3",
+                "F#4": "Fs4.mp3",
+                "A4": "A4.mp3",
+                "C5": "C5.mp3"
+            },
+            release: 1,
+            baseUrl: "https://tonejs.github.io/audio/salamander/",
+            onload: () => {
+                setIsLoaded(true);
+            }
+        }).toDestination();
+
+        synthRef.current = sampler;
+
         return () => {
             if (synthRef.current) synthRef.current.dispose();
         };
@@ -40,6 +57,7 @@ export default function DictationGame() {
 
     const startAudio = async (level) => {
         await Tone.start();
+        if (!isLoaded) return;
         setDifficulty(level);
         setStarted(true);
         generateNewMelody(LEVELS[level].length);
@@ -103,28 +121,34 @@ export default function DictationGame() {
         return (
             <div className="container" style={{ textAlign: 'center', padding: '4rem 0' }}>
                 <h1 style={{ marginBottom: '2rem' }}>Selecciona la Dificultad</h1>
-                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                    {Object.entries(LEVELS).map(([key, config]) => (
-                        <button
-                            key={key}
-                            className="btn-primary"
-                            onClick={() => startAudio(key)}
-                            style={{
-                                fontSize: '1.2rem',
-                                padding: '1rem 2rem',
-                                backgroundColor: config.color,
-                                borderColor: config.color,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                gap: '0.5rem'
-                            }}
-                        >
-                            <span>{config.label}</span>
-                            <span style={{ fontSize: '0.9rem', opacity: 0.9 }}>({config.length} notas)</span>
-                        </button>
-                    ))}
-                </div>
+                {!isLoaded ? (
+                    <div style={{ fontSize: '1.2rem', color: 'var(--text-secondary)' }}>
+                        Cargando sonidos de piano...
+                    </div>
+                ) : (
+                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                        {Object.entries(LEVELS).map(([key, config]) => (
+                            <button
+                                key={key}
+                                className="btn-primary"
+                                onClick={() => startAudio(key)}
+                                style={{
+                                    fontSize: '1.2rem',
+                                    padding: '1rem 2rem',
+                                    backgroundColor: config.color,
+                                    borderColor: config.color,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    gap: '0.5rem'
+                                }}
+                            >
+                                <span>{config.label}</span>
+                                <span style={{ fontSize: '0.9rem', opacity: 0.9 }}>({config.length} notas)</span>
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
         );
     }
