@@ -5,6 +5,19 @@ import { Play, RotateCcw, Check, Trash2, Music } from 'lucide-react';
 const SCALE = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'];
 const MELODY_LENGTH = 4;
 
+const getSolfege = (note) => {
+    const map = {
+        'C': 'Do',
+        'D': 'Re',
+        'E': 'Mi',
+        'F': 'Fa',
+        'G': 'Sol',
+        'A': 'La',
+        'B': 'Si'
+    };
+    return map[note.charAt(0)] || note;
+};
+
 export default function DictationGame() {
     const [started, setStarted] = useState(false);
     const [targetMelody, setTargetMelody] = useState([]);
@@ -123,7 +136,7 @@ export default function DictationGame() {
                                             'var(--accent)'
                             }}
                         >
-                            {userMelody[i] ? userMelody[i].replace(/\d/, '') : ''}
+                            {userMelody[i] ? getSolfege(userMelody[i]) : ''}
                         </div>
                     ))}
                 </div>
@@ -154,7 +167,7 @@ export default function DictationGame() {
                             zIndex: note.includes('#') ? 2 : 1
                         }}
                     >
-                        {note.replace(/\d/, '')}
+                        {getSolfege(note)}
                     </button>
                 ))}
             </div>
